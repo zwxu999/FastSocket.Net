@@ -28,7 +28,6 @@ namespace Sodao.FastSocket.Server
     /// </summary>
     /// <typeparam name="TMessage"></typeparam>
     public interface IUdpServer<TMessage> : IUdpServer
-        where TMessage : class, Messaging.IMessage
     {
     }
 }

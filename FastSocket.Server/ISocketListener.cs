@@ -1,17 +1,19 @@
 ﻿using System;
 using System.Net;
+using Sodao.FastSocket.SocketBase;
+using Sodao.FastSocket.SocketBase.Protocol;
+using Sodao.FastSocket.SocketBase.Protocol.Abstractions;
 
-namespace Sodao.FastSocket.Server
-{
+namespace Sodao.FastSocket.Server {
     /// <summary>
     /// socket listener
     /// </summary>
-    public interface ISocketListener
+    public interface ISocketListener<TMessageInfo, TMessage> where TMessageInfo : ISendMessageInfo<TMessage> 
     {
         /// <summary>
         /// socket accepted event
         /// </summary>
-        event Action<ISocketListener, SocketBase.IConnection> Accepted;
+        event Action<ISocketListener<TMessageInfo, TMessage>, SocketBase.IConnection<TMessageInfo, TMessage>> Accepted;
 
         /// <summary>
         /// get endpoint

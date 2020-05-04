@@ -19,13 +19,9 @@ namespace Sodao.FastSocket.SocketBase.Log
         /// <param name="onInfo"></param>
         public ListenerWrapper(Action<string> onDebug, Action<string, Exception> onError, Action<string> onInfo)
         {
-            if (onDebug == null) throw new ArgumentNullException("onDebug");
-            if (onError == null) throw new ArgumentNullException("onError");
-            if (onInfo == null) throw new ArgumentNullException("onInfo");
-
-            this._onDebug = onDebug;
-            this._onError = onError;
-            this._onInfo = onInfo;
+            this._onDebug = onDebug ?? throw new ArgumentNullException("onDebug");
+            this._onError = onError ?? throw new ArgumentNullException("onError");
+            this._onInfo = onInfo ?? throw new ArgumentNullException("onInfo");
         }
 
         /// <summary>

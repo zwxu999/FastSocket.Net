@@ -1,13 +1,12 @@
 ﻿using System;
+using Sodao.FastSocket.SocketBase.Protocol.Abstractions;
 
-namespace Sodao.FastSocket.Server
-{
+namespace Sodao.FastSocket.Server {
     /// <summary>
     /// socket service interface.
     /// </summary>
     /// <typeparam name="TMessage"></typeparam>
-    public interface ISocketService<TMessage> where TMessage : class, Messaging.IMessage
-    {
+    public interface ISocketService<TMessage> {
         /// <summary>
         /// 当建立socket连接时，会调用此方法
         /// </summary>
@@ -17,15 +16,15 @@ namespace Sodao.FastSocket.Server
         /// 发送回调
         /// </summary>
         /// <param name="connection"></param>
-        /// <param name="packet"></param>
+        /// <param name="message"></param>
         /// <param name="isSuccess"></param>
-        void OnSendCallback(SocketBase.IConnection connection, SocketBase.Packet packet, bool isSuccess);
+        void OnSendCallback(SocketBase.IConnection connection, TMessage message, bool isSuccess);
         /// <summary>
         /// 当接收到客户端新消息时，会调用此方法.
         /// </summary>
         /// <param name="connection"></param>
-        /// <param name="message"></param>
-        void OnReceived(SocketBase.IConnection connection, TMessage message);
+        /// <param name="recvivedMessageInfo"></param>
+        void OnReceived(SocketBase.IConnection connection, IRecvivedMessageInfo<TMessage> recvivedMessageInfo);
         /// <summary>
         /// 当socket连接断开时，会调用此方法
         /// </summary>

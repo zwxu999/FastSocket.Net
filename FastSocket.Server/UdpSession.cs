@@ -25,9 +25,8 @@ namespace Sodao.FastSocket.Server
         /// <exception cref="ArgumentNullException">server is null</exception>
         public UdpSession(EndPoint remoteEndPoint, IUdpServer server)
         {
-            if (server == null) throw new ArgumentNullException("server");
             this.RemoteEndPoint = remoteEndPoint;
-            this._server = server;
+            this._server = server ?? throw new ArgumentNullException("server");
         }
 
         /// <summary>

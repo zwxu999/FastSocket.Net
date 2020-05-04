@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Net;
+using System.Threading.Tasks;
+using Sodao.FastSocket.SocketBase.Protocol;
+using Sodao.FastSocket.SocketBase.Protocol.Abstractions;
 
-namespace Sodao.FastSocket.SocketBase
-{
+namespace Sodao.FastSocket.SocketBase {
     /// <summary>
     /// a connection interface.
     /// </summary>
-    public interface IConnection
-    {
+    public interface IConnection {
         /// <summary>
         /// disconnected event
         /// </summary>
@@ -41,8 +42,8 @@ namespace Sodao.FastSocket.SocketBase
         /// <summary>
         /// 异步发送数据
         /// </summary>
-        /// <param name="packet"></param>
-        void BeginSend(Packet packet);
+        /// <param name="message"></param>
+        Task<bool> BeginSend(object message);
         /// <summary>
         /// 异步接收数据
         /// </summary>
@@ -52,5 +53,33 @@ namespace Sodao.FastSocket.SocketBase
         /// </summary>
         /// <param name="ex"></param>
         void BeginDisconnect(Exception ex = null);
+
+        /// <summary>
+        /// UpdateCryptKey
+        /// </summary>
+        /// <param name="key"></param>
+        void UpdateCryptKey(object key);
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <typeparam name="TMessageInfo"></typeparam>
+    /// <typeparam name="TMessage"></typeparam>
+    public interface IConnection<TMessageInfo, TMessage> : IConnection where TMessageInfo : ISendMessageInfo<TMessage> 
+        {
+
+        /// <summary>
+        /// SetProtoHandler
+        /// </summary>
+        /// <param name="protocolHandler"></param>
+        void SetProtoHandler(IProtocolHandler<TMessageInfo, TMessage> protocolHandler);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="messageInfo"></param>
+        /// <returns></returns>
+        void BeginSendMessage(TMessageInfo messageInfo);
     }
 }

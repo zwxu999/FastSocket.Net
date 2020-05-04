@@ -1,28 +1,40 @@
 ﻿using System;
+using Sodao.FastSocket.Client.Messaging;
+using Sodao.FastSocket.Client.Protocol;
+using Sodao.FastSocket.Client.Protocol.Handlers;
+using Sodao.FastSocket.SocketBase.Protocol.Abstractions;
 
-namespace Sodao.FastSocket.Client
-{
+namespace Sodao.FastSocket.Client {
     /// <summary>
     /// thrift client
     /// </summary>
-    public class ThriftClient : SocketClient<Messaging.ThriftMessage>
-    {
+    public class ThriftClient : SocketClient<ISyncMessageInfo<ClientThriftMessage>, ClientThriftMessage> {
+
         /// <summary>
         /// new
         /// </summary>
-        public ThriftClient()
-            : base(new Protocol.ThriftProtocol())
-        {
+        public ThriftClient() : this(new SyncClientThriftProtocolHandlerFactory()) {
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="protocolFactory"></param>
+        public ThriftClient(ISyncClientProtocolHandlerFactory<ISyncClientProtocolHandler<ISyncMessageInfo<ClientThriftMessage>, ClientThriftMessage>, ISyncMessageInfo<ClientThriftMessage>, ClientThriftMessage> protocolFactory) 
+            : this(8192, 8192, protocolFactory) {
+
         }
         /// <summary>
         /// new
         /// </summary>
         /// <param name="socketBufferSize"></param>
         /// <param name="messageBufferSize"></param>
-        public ThriftClient(int socketBufferSize, int messageBufferSize)
-            : base(new Protocol.ThriftProtocol(), socketBufferSize, messageBufferSize, 3000, 3000)
-        {
+        /// <param name="protocolFactory"></param>
+        public ThriftClient(int socketBufferSize, int messageBufferSize, ISyncClientProtocolHandlerFactory<ISyncClientProtocolHandler<ISyncMessageInfo<ClientThriftMessage>, ClientThriftMessage>, ISyncMessageInfo<ClientThriftMessage>, ClientThriftMessage> protocolFactory)
+            : this(socketBufferSize, messageBufferSize, 3000, 3000, protocolFactory) {
         }
+
         /// <summary>
         /// new
         /// </summary>
@@ -30,39 +42,17 @@ namespace Sodao.FastSocket.Client
         /// <param name="messageBufferSize"></param>
         /// <param name="millisecondsSendTimeout"></param>
         /// <param name="millisecondsReceiveTimeout"></param>
+        /// <param name="protocolFactory"></param>
         public ThriftClient(int socketBufferSize,
             int messageBufferSize,
             int millisecondsSendTimeout,
-            int millisecondsReceiveTimeout)
-            : base(new Protocol.ThriftProtocol(),
+            int millisecondsReceiveTimeout,
+            ISyncClientProtocolHandlerFactory<ISyncClientProtocolHandler<ISyncMessageInfo<ClientThriftMessage>, ClientThriftMessage>, ISyncMessageInfo<ClientThriftMessage>, ClientThriftMessage> protocolFactory)
+            : base(protocolFactory,
             socketBufferSize,
             messageBufferSize,
             millisecondsSendTimeout,
-            millisecondsReceiveTimeout)
-        {
-        }
-
-        /// <summary>
-        /// send
-        /// </summary>
-        /// <param name="service"></param>
-        /// <param name="cmdName"></param>
-        /// <param name="seqID"></param>
-        /// <param name="payload"></param>
-        /// <param name="onException"></param>
-        /// <param name="onResult"></param>
-        /// <exception cref="ArgumentNullException">payload is null</exception>
-        /// <exception cref="ArgumentNullException">onException is null</exception>
-        /// <exception cref="ArgumentNullException">onResult is null</exception>
-        public void Send(string service, string cmdName, int seqID, byte[] payload,
-            Action<Exception> onException, Action<byte[]> onResult)
-        {
-            if (payload == null) throw new ArgumentNullException("payload");
-            if (onException == null) throw new ArgumentNullException("onException");
-            if (onResult == null) throw new ArgumentNullException("onResult");
-
-            base.Send(new Request<Messaging.ThriftMessage>(seqID, string.Concat(service, ".", cmdName), payload,
-                base.MillisecondsReceiveTimeout, onException, message => onResult(message.Payload)));
+            millisecondsReceiveTimeout) {
         }
     }
 }

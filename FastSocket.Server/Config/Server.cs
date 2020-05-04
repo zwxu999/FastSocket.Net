@@ -1,17 +1,17 @@
 ﻿using System.Configuration;
 
-namespace Sodao.FastSocket.Server.Config
+namespace Sodao.FastSocket.Server.Config 
 {
     /// <summary>
     /// server
     /// </summary>
-    public class Server : ConfigurationElement
+    public class Server : ConfigurationElement 
     {
         /// <summary>
         /// 名称
         /// </summary>
         [ConfigurationProperty("name", IsRequired = true)]
-        public string Name
+        public string Name 
         {
             get { return (string)this["name"]; }
         }
@@ -19,7 +19,7 @@ namespace Sodao.FastSocket.Server.Config
         /// 端口号。
         /// </summary>
         [ConfigurationProperty("port", IsRequired = true)]
-        public int Port
+        public int Port 
         {
             get { return (int)this["port"]; }
         }
@@ -29,7 +29,7 @@ namespace Sodao.FastSocket.Server.Config
         /// 默认8192 bytes
         /// </summary>
         [ConfigurationProperty("socketBufferSize", IsRequired = false, DefaultValue = 8192)]
-        public int SocketBufferSize
+        public int SocketBufferSize 
         {
             get { return (int)this["socketBufferSize"]; }
         }
@@ -38,7 +38,7 @@ namespace Sodao.FastSocket.Server.Config
         /// 默认1024 bytes
         /// </summary>
         [ConfigurationProperty("messageBufferSize", IsRequired = false, DefaultValue = 8192)]
-        public int MessageBufferSize
+        public int MessageBufferSize 
         {
             get { return (int)this["messageBufferSize"]; }
         }
@@ -47,7 +47,7 @@ namespace Sodao.FastSocket.Server.Config
         /// 默认4MB
         /// </summary>
         [ConfigurationProperty("maxMessageSize", IsRequired = false, DefaultValue = 1024 * 1024 * 4)]
-        public int MaxMessageSize
+        public int MaxMessageSize 
         {
             get { return (int)this["maxMessageSize"]; }
         }
@@ -55,7 +55,7 @@ namespace Sodao.FastSocket.Server.Config
         /// 最大连接数，默认2W
         /// </summary>
         [ConfigurationProperty("maxConnections", IsRequired = false, DefaultValue = 20000)]
-        public int MaxConnections
+        public int MaxConnections 
         {
             get { return (int)this["maxConnections"]; }
         }
@@ -64,17 +64,26 @@ namespace Sodao.FastSocket.Server.Config
         /// ServiceType
         /// </summary>
         [ConfigurationProperty("serviceType", IsRequired = true)]
-        public string ServiceType
+        public string ServiceType 
         {
             get { return (string)this["serviceType"]; }
         }
+
+        /// <summary>
+        /// serviceVersion
+        /// </summary>
+        [ConfigurationProperty("serviceVersion", IsRequired = false)]
+        public string ServiceVersion {
+            get { return (string)this["serviceVersion"]; }
+        }
+
         /// <summary>
         /// 协议, 默认命令行协议
         /// </summary>
-        [ConfigurationProperty("protocol", IsRequired = false, DefaultValue = "commandLine")]
-        public string Protocol
+        [ConfigurationProperty("protocolHandlerFactory", IsRequired = false, DefaultValue = "commandLine")]
+        public string ProtocolHandlerFactory 
         {
-            get { return (string)this["protocol"]; }
+            get { return (string)this["protocolHandlerFactory"]; }
         }
     }
 }

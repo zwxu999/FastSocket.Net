@@ -1,11 +1,13 @@
 ﻿using System.Net.Sockets;
+using Sodao.FastSocket.SocketBase.Protocol;
+using Sodao.FastSocket.SocketBase.Protocol.Abstractions;
 
-namespace Sodao.FastSocket.SocketBase
-{
+namespace Sodao.FastSocket.SocketBase {
+
     /// <summary>
     /// socket connection host interface
     /// </summary>
-    public interface IHost
+    public interface ISocketEventHandler<TMessage>
     {
         /// <summary>
         /// get socket buffer size
@@ -15,13 +17,30 @@ namespace Sodao.FastSocket.SocketBase
         /// get message buffer size
         /// </summary>
         int MessageBufferSize { get; }
+    }
+
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <typeparam name="TMessageInfo"></typeparam>
+    /// <typeparam name="TMessage"></typeparam>
+    public interface IHost<TMessageInfo, TMessage> : ISocketEventHandler<TMessage>, IConnectionManager where TMessageInfo : ISendMessageInfo<TMessage> 
+    {
 
         /// <summary>
         /// create new <see cref="IConnection"/>
         /// </summary>
         /// <param name="socket"></param>
         /// <returns></returns>
-        IConnection NewConnection(Socket socket);
+        IConnection<TMessageInfo, TMessage> NewConnection(Socket socket);
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public interface IConnectionManager {
+
         /// <summary>
         /// get <see cref="IConnection"/> by connectionID
         /// </summary>

@@ -1,38 +1,53 @@
 ﻿using System;
 
-namespace Sodao.FastSocket.Client
-{
+namespace Sodao.FastSocket.Client {
     /// <summary>
-    /// socket request exception
+    /// socket message exception
     /// </summary>
-    public sealed class RequestException : ApplicationException
-    {
+    public sealed class MessageException : ApplicationException {
         /// <summary>
         /// error
         /// </summary>
         public readonly Errors Error;
         /// <summary>
-        /// request name
+        /// message name
         /// </summary>
-        public readonly string RequestName;
+        public readonly string MessageName;
+
+        /// <summary>
+        /// new
+        /// </summary>
+        /// <param name="error"></param>
+        /// <param name="id"></param>
+        public MessageException(Errors error, int id)
+            : base(string.Concat("errorType:", error.ToString(), " name:", id.ToString() ?? string.Empty)) {
+            this.Error = error;
+            this.MessageName = id.ToString();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="error"></param>
+        public MessageException(Errors error) {
+            this.Error = error;
+        }
 
         /// <summary>
         /// new
         /// </summary>
         /// <param name="error"></param>
         /// <param name="name"></param>
-        public RequestException(Errors error, string name)
-            : base(string.Concat("errorType:", error.ToString(), " name:", name ?? string.Empty))
-        {
+        public MessageException(Errors error, string name)
+            : base(string.Concat("errorType:", error.ToString(), " name:", name ?? string.Empty)) {
             this.Error = error;
-            this.RequestName = name;
+            this.MessageName = name;
         }
 
         /// <summary>
         /// error type enum
         /// </summary>
-        public enum Errors : byte
-        {
+        public enum Errors : byte {
             /// <summary>
             /// 未知
             /// </summary>

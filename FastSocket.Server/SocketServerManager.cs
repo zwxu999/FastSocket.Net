@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using Sodao.FastSocket.Server.Protocol.CommandLine;
+using Sodao.FastSocket.Server.Protocol.Thrift;
+using Sodao.FastSocket.SocketBase.Protocol.Abstractions;
 
 namespace Sodao.FastSocket.Server
 {
@@ -14,8 +17,8 @@ namespace Sodao.FastSocket.Server
         /// <summary>
         /// key:server name.
         /// </summary>
-        static private readonly Dictionary<string, SocketBase.IHost> _dicHosts =
-            new Dictionary<string, SocketBase.IHost>();
+        static private readonly Dictionary<string, SocketBase.IConnectionManager> _connectionManagerCollection =
+            new Dictionary<string, SocketBase.IConnectionManager>();
         #endregion
 
         #region Static Methods
@@ -46,9 +49,9 @@ namespace Sodao.FastSocket.Server
 
             foreach (Config.Server serverConfig in config.Servers)
             {
-                //inti protocol
-                var objProtocol = GetProtocol(serverConfig.Protocol);
-                if (objProtocol == null) throw new InvalidOperationException("protocol");
+                //inti protocolHandlerFactory
+                var objProtocolHandlerFactory = GetProtocolHandlerFactory(serverConfig.ProtocolHandlerFactory);
+                if (objProtocolHandlerFactory == null) throw new InvalidOperationException("protocolHandlerFactory");
 
                 //init custom service
                 var tService = Type.GetType(serverConfig.ServiceType, false);
@@ -57,32 +60,34 @@ namespace Sodao.FastSocket.Server
                 var objService = Activator.CreateInstance(tService);
                 if (objService == null) throw new InvalidOperationException("serviceType");
 
+                var messageTypes = objProtocolHandlerFactory.GetType().GetInterface(typeof(IProtocolHandlerFactory<,,>).Name).GetGenericArguments();
+                var socketServerType = typeof(SocketServer<,>).MakeGenericType(messageTypes[1], messageTypes[2]);
+
                 //init host.
-                _dicHosts.Add(serverConfig.Name, Activator.CreateInstance(
-                    typeof(SocketServer<>).MakeGenericType(
-                    objProtocol.GetType().GetInterface(typeof(Protocol.IProtocol<>).Name).GetGenericArguments()),
+                _connectionManagerCollection.Add(serverConfig.Name, Activator.CreateInstance(
+                        socketServerType,
                         serverConfig.Port,
                         objService,
-                        objProtocol,
+                        objProtocolHandlerFactory,
                         serverConfig.SocketBufferSize,
                         serverConfig.MessageBufferSize,
                         serverConfig.MaxMessageSize,
-                        serverConfig.MaxConnections) as SocketBase.IHost);
+                        serverConfig.MaxConnections) as SocketBase.IConnectionManager);
             }
         }
         /// <summary>
         /// get protocol.
         /// </summary>
-        /// <param name="protocol"></param>
+        /// <param name="protocolHandlerFactory"></param>
         /// <returns></returns>
-        static public object GetProtocol(string protocol)
+        static public object GetProtocolHandlerFactory(string protocolHandlerFactory)
         {
-            switch (protocol)
+            switch (protocolHandlerFactory) 
             {
-                case Protocol.ProtocolNames.Thrift: return new Protocol.ThriftProtocol();
-                case Protocol.ProtocolNames.CommandLine: return new Protocol.CommandLineProtocol();
+                case Protocol.ProtocolNames.Thrift: return new ServerThriftProtocolHandlerFactory();
+                case Protocol.ProtocolNames.CommandLine: return new ServerCommandLineProtocolHandlerFactory();
             }
-            return Activator.CreateInstance(Type.GetType(protocol, false));
+            return Activator.CreateInstance(Type.GetType(protocolHandlerFactory, false));
         }
 
         /// <summary>
@@ -90,24 +95,24 @@ namespace Sodao.FastSocket.Server
         /// </summary>
         static public void Start()
         {
-            _dicHosts.ToList().ForEach(c => c.Value.Start());
+            _connectionManagerCollection.ToList().ForEach(c => c.Value.Start());
         }
         /// <summary>
         /// 停止服务
         /// </summary>
         static public void Stop()
         {
-            _dicHosts.ToList().ForEach(c => c.Value.Stop());
+            _connectionManagerCollection.ToList().ForEach(c => c.Value.Stop());
         }
         /// <summary>
         /// try get host by name.
         /// </summary>
         /// <param name="name"></param>
-        /// <param name="host"></param>
+        /// <param name="connectionManager"></param>
         /// <returns></returns>
-        static public bool TryGetHost(string name, out SocketBase.IHost host)
+        static public bool TryGetHost(string name, out SocketBase.IConnectionManager connectionManager)
         {
-            return _dicHosts.TryGetValue(name, out host);
+            return _connectionManagerCollection.TryGetValue(name, out connectionManager);
         }
         #endregion
     }

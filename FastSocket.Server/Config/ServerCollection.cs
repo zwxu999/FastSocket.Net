@@ -1,4 +1,5 @@
-﻿using System.Configuration;
+﻿using System.Collections.Generic;
+using System.Configuration;
 
 namespace Sodao.FastSocket.Server.Config
 {
@@ -6,7 +7,7 @@ namespace Sodao.FastSocket.Server.Config
     /// 服务器集合。
     /// </summary>
     [ConfigurationCollection(typeof(Server), AddItemName = "server")]
-    public class ServerCollection : ConfigurationElementCollection
+    public class ServerCollection : ConfigurationElementCollection, IEnumerable<Server>
     {
         /// <summary>
         /// 创建新元素。
@@ -34,6 +35,12 @@ namespace Sodao.FastSocket.Server.Config
         public Server this[int i]
         {
             get { return BaseGet(i) as Server; }
+        }
+
+        IEnumerator<Server> IEnumerable<Server>.GetEnumerator() {
+            for (int i = 0; i < Count; i++) {
+                yield return this[i];
+            }
         }
     }
 }

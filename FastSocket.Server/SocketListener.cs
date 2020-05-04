@@ -2,19 +2,23 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using Sodao.FastSocket.SocketBase;
+using Sodao.FastSocket.SocketBase.Protocol;
+using Sodao.FastSocket.SocketBase.Protocol.Abstractions;
 
 namespace Sodao.FastSocket.Server
 {
     /// <summary>
     /// socket listener
     /// </summary>
-    public sealed class SocketListener : ISocketListener
+    public sealed class SocketListener<TMessageInfo, TMessage> : ISocketListener<TMessageInfo, TMessage> where TMessageInfo : ISendMessageInfo<TMessage>
     {
         #region Private Members
-        private readonly SocketBase.IHost _host = null;
+        private readonly SocketBase.IHost<TMessageInfo,TMessage> _host = null;
         private const int BACKLOG = 500;
         private Socket _socket = null;
         private readonly SocketAsyncEventArgs _ae = null;
+
         #endregion
 
         #region Constructors
@@ -25,13 +29,10 @@ namespace Sodao.FastSocket.Server
         /// <param name="host"></param>
         /// <exception cref="ArgumentNullException">endPoint is null</exception>
         /// <exception cref="ArgumentNullException">host is null</exception>
-        public SocketListener(IPEndPoint endPoint, SocketBase.IHost host)
+        public SocketListener(IPEndPoint endPoint, SocketBase.IHost<TMessageInfo,TMessage> host)
         {
-            if (endPoint == null) throw new ArgumentNullException("endPoint");
-            if (host == null) throw new ArgumentNullException("host");
-
-            this.EndPoint = endPoint;
-            this._host = host;
+            this.EndPoint = endPoint ?? throw new ArgumentNullException("endPoint");
+            this._host = host ?? throw new ArgumentNullException("host");
 
             this._ae = new SocketAsyncEventArgs();
             this._ae.Completed += this.AcceptCompleted;
@@ -42,7 +43,7 @@ namespace Sodao.FastSocket.Server
         /// <summary>
         /// socket accepted event
         /// </summary>
-        public event Action<ISocketListener, SocketBase.IConnection> Accepted;
+        public event Action<ISocketListener<TMessageInfo, TMessage>, SocketBase.IConnection<TMessageInfo,TMessage>> Accepted;
         /// <summary>
         /// get listener endPoint
         /// </summary>
@@ -87,7 +88,7 @@ namespace Sodao.FastSocket.Server
             try { completed = this._socket.AcceptAsync(this._ae); }
             catch (Exception ex) { SocketBase.Log.Trace.Error(ex.Message, ex); }
 
-            if (!completed) ThreadPool.QueueUserWorkItem(_ => this.AcceptCompleted(this, this._ae));
+            if (!completed) this.AcceptCompleted(this, this._ae);//ThreadPool.QueueUserWorkItem(_ => )
         }
         /// <summary>
         /// async accept socket completed handle.

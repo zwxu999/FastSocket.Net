@@ -1,12 +1,12 @@
 ﻿using System;
 
-namespace Sodao.FastSocket.Server
+namespace Sodao.FastSocket.Server 
 {
     /// <summary>
     /// udp service interface.
     /// </summary>
     /// <typeparam name="TMessage"></typeparam>
-    public interface IUdpService<TMessage> where TMessage : class, Messaging.IMessage
+    public interface IUdpService<TMessage> 
     {
         /// <summary>
         /// on message received
