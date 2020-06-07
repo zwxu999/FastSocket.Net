@@ -347,19 +347,19 @@ namespace Sodao.FastSocket.SocketBase {
                 }
             }
 
-            bool TryConvert(object obj, out TMessage message) {
+            bool TryConvert(object source, out TMessage message) {
                 message = default(TMessage);
                 var destType = typeof(TMessage);
-                var sourceType = obj.GetType();
-                var typeConvert = TypeDescriptor.GetConverter(typeof(TMessage));
-                if (typeConvert == null) {
-                    return false;
-                }
-                if (typeConvert.CanConvertFrom(sourceType) && typeConvert.IsValid(obj)) {
-                    message = (TMessage)typeConvert.ConvertFrom(obj);
+                var sourceType = source.GetType();
+                var destTypeConvert = TypeDescriptor.GetConverter(destType);
+                if (destTypeConvert != null && destTypeConvert.CanConvertFrom(sourceType) && destTypeConvert.IsValid(source)) {
+                    message = (TMessage)destTypeConvert.ConvertFrom(source);
                     return true;
-                } else if (typeConvert.CanConvertTo(sourceType) && typeConvert.IsValid(obj)) {
-                    message = (TMessage)typeConvert.ConvertTo(obj, destType);
+                }
+
+                var sourceTypeConvert = TypeDescriptor.GetConverter(sourceType);
+                if (sourceTypeConvert != null && sourceTypeConvert.CanConvertTo(destType)) {
+                    message = (TMessage)sourceTypeConvert.ConvertTo(source, destType);
                     return true;
                 }
 
